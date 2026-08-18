@@ -1,18 +1,21 @@
 {
   "name": "dyhanie_dnya",
   "version": "1.0.0-dev",
-  "description": "Дыхание дня — полноценный трекер привычек с астрологией, циклом и родительским режимом",
+  "description": "Дыхание дня — трекер привычек с астрологией, менструальным циклом и родительским режимом",
   "structure": {
     "lib": {
-      "main.dart": "",
-      "app.dart": "",
+      "main.dart": "Точка входа",
+      "app.dart": "MaterialApp + ProviderScope",
       "core": {
         "constants": {},
-        "theme": {},
+        "theme": {
+          "app_theme.dart": "",
+          "color_schemes.dart": ""
+        },
         "utils": {
           "date_utils.dart": "",
-          "moon_calculator.dart": "",
-          "cycle_calculator.dart": ""
+          "moon_calculator.dart": "Расчёт фазы Луны",
+          "cycle_calculator.dart": "Расчёт менструального цикла"
         },
         "extensions": {}
       },
@@ -27,7 +30,7 @@
         "child_profile.dart": ""
       },
       "services": {
-        "storage_service.dart": "",
+        "storage_service.dart": "Hive / Isar",
         "habit_service.dart": "",
         "category_service.dart": "",
         "astrology_service.dart": "",
@@ -35,7 +38,7 @@
         "settings_service.dart": "",
         "cycle_service.dart": "",
         "child_habits_service.dart": "",
-        "health_service.dart": "заглушка"
+        "health_service.dart": "Заглушка"
       },
       "providers": {
         "settings_provider.dart": "",
@@ -53,9 +56,25 @@
         "stats": {},
         "habit": {},
         "settings": {},
-        "cycle": {},
-        "child": {},
-        "stubs": {}
+        "cycle": {
+          "cycle_screen.dart": "",
+          "cycle_edit_screen.dart": ""
+        },
+        "child": {
+          "child_list_screen.dart": "",
+          "child_habits_screen.dart": ""
+        },
+        "stubs": {
+          "widgets_stub_screen.dart": "",
+          "notifications_stub_screen.dart": "",
+          "voice_input_stub_screen.dart": "",
+          "health_stub_screen.dart": "",
+          "habit_stacking_stub_screen.dart": "",
+          "shared_habits_stub_screen.dart": "",
+          "advanced_lunar_stub_screen.dart": "",
+          "astro_profile_stub_screen.dart": "",
+          "pregnancy_stub_screen.dart": ""
+        }
       },
       "widgets": {
         "habit_card.dart": "",
@@ -76,6 +95,13 @@
       "fonts": {}
     },
     "test": {},
-    "root": [".gitignore", "pubspec.yaml", "analysis_options.yaml", "README.md", "CHANGELOG.md", "project_structure.json"]
+    "root_files": [
+      ".gitignore",
+      "pubspec.yaml",
+      "analysis_options.yaml",
+      "README.md",
+      "CHANGELOG.md",
+      "project_structure.json"
+    ]
   }
 }
