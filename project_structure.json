@@ -1,0 +1,81 @@
+{
+  "name": "dyhanie_dnya",
+  "version": "1.0.0-dev",
+  "description": "Дыхание дня — полноценный трекер привычек с астрологией, циклом и родительским режимом",
+  "structure": {
+    "lib": {
+      "main.dart": "",
+      "app.dart": "",
+      "core": {
+        "constants": {},
+        "theme": {},
+        "utils": {
+          "date_utils.dart": "",
+          "moon_calculator.dart": "",
+          "cycle_calculator.dart": ""
+        },
+        "extensions": {}
+      },
+      "models": {
+        "category.dart": "",
+        "habit.dart": "",
+        "habit_log.dart": "",
+        "daily_astrology.dart": "",
+        "smart_insight.dart": "",
+        "app_settings.dart": "",
+        "cycle_log.dart": "",
+        "child_profile.dart": ""
+      },
+      "services": {
+        "storage_service.dart": "",
+        "habit_service.dart": "",
+        "category_service.dart": "",
+        "astrology_service.dart": "",
+        "smart_insights_service.dart": "",
+        "settings_service.dart": "",
+        "cycle_service.dart": "",
+        "child_habits_service.dart": "",
+        "health_service.dart": "заглушка"
+      },
+      "providers": {
+        "settings_provider.dart": "",
+        "habits_provider.dart": "",
+        "categories_provider.dart": "",
+        "astrology_provider.dart": "",
+        "smart_insights_provider.dart": "",
+        "theme_provider.dart": "",
+        "cycle_provider.dart": "",
+        "child_habits_provider.dart": ""
+      },
+      "screens": {
+        "onboarding": {},
+        "home": {},
+        "stats": {},
+        "habit": {},
+        "settings": {},
+        "cycle": {},
+        "child": {},
+        "stubs": {}
+      },
+      "widgets": {
+        "habit_card.dart": "",
+        "moon_phase_card.dart": "",
+        "smart_insight_card.dart": "",
+        "cycle_card.dart": "",
+        "child_habit_card.dart": "",
+        "common": {}
+      },
+      "l10n": {
+        "app_ru.arb": "",
+        "app_en.arb": ""
+      }
+    },
+    "assets": {
+      "images": {},
+      "icons": {},
+      "fonts": {}
+    },
+    "test": {},
+    "root": [".gitignore", "pubspec.yaml", "analysis_options.yaml", "README.md", "CHANGELOG.md", "project_structure.json"]
+  }
+}
