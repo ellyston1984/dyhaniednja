@@ -18,14 +18,13 @@ class StatsScreen extends ConsumerWidget {
     final accent = ref.watch(accentColorProvider);
     final astrologyAsync = ref.watch(dailyAstrologyProvider);
 
-    // Пока простая заглушка серии (позже посчитаем реально)
-    final currentStreak = 0;
-    final bestStreak = 0;
-   
     final bg = ref.watch(backgroundColorProvider);
     final text = ref.watch(textColorProvider);
     final secondary = ref.watch(secondaryTextColorProvider);
     final card = ref.watch(cardColorProvider);
+
+    const currentStreak = 0;
+    const bestStreak = 0;
 
     return Scaffold(
       backgroundColor: bg,
@@ -33,12 +32,12 @@ class StatsScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white70, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new, color: secondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Статистика',
-          style: TextStyle(color: Colors.white, fontSize: 18),
+          style: TextStyle(color: text, fontSize: 18),
         ),
       ),
       body: ListView(
@@ -46,6 +45,7 @@ class StatsScreen extends ConsumerWidget {
         children: [
           // ---------- Текущая серия ----------
           _Card(
+            color: card,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -53,12 +53,9 @@ class StatsScreen extends ConsumerWidget {
                   children: [
                     Icon(Icons.local_fire_department, color: accent, size: 28),
                     const SizedBox(width: 10),
-                    const Text(
+                    Text(
                       'Текущая серия',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: secondary, fontSize: 14),
                     ),
                   ],
                 ),
@@ -74,20 +71,14 @@ class StatsScreen extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Лучшая серия: $bestStreak дней',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.4),
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: secondary, fontSize: 13),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   settings.streakMode == 'strict'
                       ? 'Режим: строгий'
                       : 'Режим: мягкий',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.35),
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: secondary.withOpacity(0.8), fontSize: 12),
                 ),
               ],
             ),
@@ -95,10 +86,11 @@ class StatsScreen extends ConsumerWidget {
 
           const SizedBox(height: 16),
 
-          // ---------- Астрология (если включена) ----------
+          // ---------- Астрология ----------
           if (settings.astrologyEnabled)
             astrologyAsync.when(
               data: (astro) => _Card(
+                color: card,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -119,8 +111,8 @@ class StatsScreen extends ConsumerWidget {
                     const SizedBox(height: 12),
                     Text(
                       astro.moonPhase ?? '—',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: text,
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
@@ -128,17 +120,14 @@ class StatsScreen extends ConsumerWidget {
                     const SizedBox(height: 4),
                     Text(
                       astro.shortAdvice ?? '',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: secondary, fontSize: 14),
                     ),
-                    if (astro.affirmation != null && astro.affirmation!.isNotEmpty) ...[
+                    if (astro.affirmation.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       Text(
                         '«${astro.affirmation}»',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.45),
+                          color: secondary,
                           fontSize: 13,
                           fontStyle: FontStyle.italic,
                         ),
@@ -153,41 +142,43 @@ class StatsScreen extends ConsumerWidget {
 
           if (settings.astrologyEnabled) const SizedBox(height: 16),
 
-          // ---------- Привычки сегодня ----------
-          _sectionTitle('Привычки'),
+          // ---------- Привычки ----------
+          _sectionTitle('Привычки', secondary),
           if (habits.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: Text(
                 'Пока нет привычек',
-                style: TextStyle(color: Colors.white.withOpacity(0.4)),
+                style: TextStyle(color: secondary),
               ),
             )
           else
             ...habits.map((habit) {
               return _HabitStatRow(
                 habit: habit,
-                accent: accent,
+                card: card,
+                text: text,
+                secondary: secondary,
               );
             }),
 
           const SizedBox(height: 24),
 
-          // ---------- Простой календарь (заглушка) ----------
-          _sectionTitle('Календарь выполнений'),
+          // ---------- Календарь ----------
+          _sectionTitle('Календарь выполнений', secondary),
           _Card(
+            color: card,
             child: Column(
               children: [
                 Text(
                   DateFormat('LLLL yyyy', 'ru').format(DateTime.now()),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: text,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Простая сетка дней (заглушка)
                 Wrap(
                   spacing: 6,
                   runSpacing: 6,
@@ -200,8 +191,8 @@ class StatsScreen extends ConsumerWidget {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: isToday
-                            ? accent.withOpacity(0.3)
-                            : Colors.white.withOpacity(0.04),
+                            ? accent.withOpacity(0.25)
+                            : text.withOpacity(0.04),
                         borderRadius: BorderRadius.circular(8),
                         border: isToday
                             ? Border.all(color: accent, width: 1.5)
@@ -210,7 +201,7 @@ class StatsScreen extends ConsumerWidget {
                       child: Text(
                         '$day',
                         style: TextStyle(
-                          color: isToday ? accent : Colors.white54,
+                          color: isToday ? accent : secondary,
                           fontSize: 13,
                           fontWeight:
                               isToday ? FontWeight.w600 : FontWeight.normal,
@@ -222,10 +213,7 @@ class StatsScreen extends ConsumerWidget {
                 const SizedBox(height: 8),
                 Text(
                   'Подробный календарь появится позже',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.3),
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: secondary, fontSize: 12),
                 ),
               ],
             ),
@@ -235,13 +223,13 @@ class StatsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _sectionTitle(String text) {
+  Widget _sectionTitle(String label, Color secondary) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10, top: 4),
       child: Text(
-        text,
+        label,
         style: TextStyle(
-          color: Colors.white.withOpacity(0.5),
+          color: secondary,
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
@@ -250,13 +238,11 @@ class StatsScreen extends ConsumerWidget {
   }
 }
 
-// ======================================================
-// Вспомогательные виджеты
-// ======================================================
-
 class _Card extends StatelessWidget {
   final Widget child;
-  const _Card({required this.child});
+  final Color color;
+
+  const _Card({required this.child, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -264,7 +250,7 @@ class _Card extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: color,
         borderRadius: BorderRadius.circular(16),
       ),
       child: child,
@@ -274,11 +260,15 @@ class _Card extends StatelessWidget {
 
 class _HabitStatRow extends StatelessWidget {
   final Habit habit;
-  final Color accent;
+  final Color card;
+  final Color text;
+  final Color secondary;
 
   const _HabitStatRow({
     required this.habit,
-    required this.accent,
+    required this.card,
+    required this.text,
+    required this.secondary,
   });
 
   @override
@@ -289,7 +279,7 @@ class _HabitStatRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
+        color: card,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -306,19 +296,15 @@ class _HabitStatRow extends StatelessWidget {
           Expanded(
             child: Text(
               habit.title,
-              style: const TextStyle(color: Colors.white, fontSize: 15),
+              style: TextStyle(color: text, fontSize: 15),
             ),
           ),
           Text(
             '0 / ${habit.targetCount}',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.45),
-              fontSize: 13,
-            ),
+            style: TextStyle(color: secondary, fontSize: 13),
           ),
         ],
       ),
     );
   }
 }
-

@@ -4,7 +4,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers/theme_provider.dart';
 
-/// Универсальный экран-заглушка
 class StubScreen extends ConsumerWidget {
   final String title;
   final String description;
@@ -24,7 +23,6 @@ class StubScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final accent = ref.watch(accentColorProvider);
-
     final bg = ref.watch(backgroundColorProvider);
     final text = ref.watch(textColorProvider);
     final secondary = ref.watch(secondaryTextColorProvider);
@@ -36,12 +34,12 @@ class StubScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white70, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new, color: secondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           title,
-          style: const TextStyle(color: Colors.white, fontSize: 18),
+          style: TextStyle(color: text, fontSize: 18),
         ),
       ),
       body: Center(
@@ -62,8 +60,8 @@ class StubScreen extends ConsumerWidget {
               const SizedBox(height: 28),
               Text(
                 title,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: text,
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
                 ),
@@ -73,7 +71,7 @@ class StubScreen extends ConsumerWidget {
               Text(
                 description,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
+                  color: secondary,
                   fontSize: 15,
                   height: 1.4,
                 ),
@@ -81,15 +79,16 @@ class StubScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.08),
+                  color: card,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   'Скоро',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.4),
+                    color: secondary,
                     fontSize: 12,
                   ),
                 ),
@@ -101,7 +100,10 @@ class StubScreen extends ConsumerWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: accent,
                     foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 14,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -162,7 +164,7 @@ class WidgetsStubScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return const StubScreen(
       title: 'Виджеты',
-      description: 'Виджеты для главного экрана\nпоявится в следующих версиях.',
+      description: 'Виджеты для главного экрана\nпоявятся в следующих версиях.',
       icon: Icons.widgets_outlined,
     );
   }

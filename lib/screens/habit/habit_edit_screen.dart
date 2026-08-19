@@ -3,13 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../models/habit.dart';
-import '../../models/category.dart';
 import '../../providers/habits_provider.dart';
 import '../../providers/categories_provider.dart';
 import '../../providers/theme_provider.dart';
 
 class HabitEditScreen extends ConsumerStatefulWidget {
-  final Habit? habit; // null = создание новой
+  final Habit? habit;
 
   const HabitEditScreen({super.key, this.habit});
 
@@ -23,18 +22,18 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
 
   late int _selectedColor;
   late String _selectedCategoryId;
-  late List<int> _selectedDays; // 1=Пн ... 7=Вс
+  late List<int> _selectedDays;
   late int _targetCount;
 
   final List<int> _presetColors = [
-    0xFF4A9B9B, // бирюзовый
-    0xFF7C9A72, // зелёный
-    0xFFD4A373, // песочный
-    0xFFC77DFF, // фиолетовый
-    0xFFFF6B6B, // красный
-    0xFF4D96FF, // синий
-    0xFFFFB347, // оранжевый
-    0xFF95D5B2, // мятный
+    0xFF4A9B9B,
+    0xFF7C9A72,
+    0xFFD4A373,
+    0xFFC77DFF,
+    0xFFFF6B6B,
+    0xFF4D96FF,
+    0xFFFFB347,
+    0xFF95D5B2,
   ];
 
   final List<String> _weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -51,8 +50,8 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
       _targetCount = h.targetCount;
     } else {
       _selectedColor = _presetColors[0];
-      _selectedCategoryId = 'health'; // будет из категорий
-      _selectedDays = [1, 2, 3, 4, 5, 6, 7]; // все дни
+      _selectedCategoryId = 'health';
+      _selectedDays = [1, 2, 3, 4, 5, 6, 7];
       _targetCount = 1;
     }
   }
@@ -71,7 +70,6 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
       );
       return;
     }
-
     if (_selectedDays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Выберите хотя бы один день')),
@@ -82,7 +80,6 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
     final habitsNotifier = ref.read(habitsProvider.notifier);
 
     if (widget.habit == null) {
-      // Создание
       final newHabit = Habit(
         id: _uuid.v4(),
         title: title,
@@ -94,7 +91,6 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
       );
       await habitsNotifier.addHabit(newHabit);
     } else {
-      // Редактирование
       final updated = Habit(
         id: widget.habit!.id,
         title: title,
@@ -116,24 +112,30 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
 
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1E),
-        title: const Text('Удалить привычку?', style: TextStyle(color: Colors.white)),
-        content: const Text(
-          'Это действие нельзя отменить',
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Отмена'),
+      builder: (ctx) {
+        final bg = ref.read(backgroundColorProvider);
+        final text = ref.read(textColorProvider);
+        final secondary = ref.read(secondaryTextColorProvider);
+
+        return AlertDialog(
+          backgroundColor: bg,
+          title: Text('Удалить привычку?', style: TextStyle(color: text)),
+          content: Text(
+            'Это действие нельзя отменить',
+            style: TextStyle(color: secondary),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Удалить', style: TextStyle(color: Colors.redAccent)),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text('Отмена', style: TextStyle(color: secondary)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Удалить', style: TextStyle(color: Colors.redAccent)),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirm == true) {
@@ -148,16 +150,15 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
     final categories = ref.watch(categoriesProvider);
     final isEdit = widget.habit != null;
 
-    // Если категорий ещё нет — подставляем дефолтную
-    if (categories.isNotEmpty && 
-        !categories.any((c) => c.id == _selectedCategoryId)) {
-      _selectedCategoryId = categories.first.id;
-    }
-
     final bg = ref.watch(backgroundColorProvider);
     final text = ref.watch(textColorProvider);
     final secondary = ref.watch(secondaryTextColorProvider);
     final card = ref.watch(cardColorProvider);
+
+    if (categories.isNotEmpty &&
+        !categories.any((c) => c.id == _selectedCategoryId)) {
+      _selectedCategoryId = categories.first.id;
+    }
 
     return Scaffold(
       backgroundColor: bg,
@@ -165,12 +166,12 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white70),
+          icon: Icon(Icons.close, color: secondary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           isEdit ? 'Редактировать' : 'Новая привычка',
-          style: const TextStyle(color: Colors.white, fontSize: 18),
+          style: TextStyle(color: text, fontSize: 18),
         ),
         actions: [
           if (isEdit)
@@ -183,29 +184,28 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
         children: [
-          // ----- Название -----
-          _sectionTitle('Название'),
+          _sectionTitle('Название', secondary),
           TextField(
             controller: _titleController,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(color: text, fontSize: 16),
             cursorColor: accent,
             decoration: InputDecoration(
               hintText: 'Например: Пить воду',
-              hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+              hintStyle: TextStyle(color: secondary),
               filled: true,
-              fillColor: Colors.white.withOpacity(0.06),
+              fillColor: card,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
           ),
 
           const SizedBox(height: 28),
 
-          // ----- Цвет -----
-          _sectionTitle('Цвет'),
+          _sectionTitle('Цвет', secondary),
           Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -220,7 +220,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
                     color: Color(c),
                     shape: BoxShape.circle,
                     border: selected
-                        ? Border.all(color: Colors.white, width: 3)
+                        ? Border.all(color: text, width: 3)
                         : null,
                   ),
                   child: selected
@@ -233,20 +233,19 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
 
           const SizedBox(height: 28),
 
-          // ----- Категория -----
-          _sectionTitle('Категория'),
+          _sectionTitle('Категория', secondary),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
+              color: card,
               borderRadius: BorderRadius.circular(14),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: categories.isEmpty ? null : _selectedCategoryId,
                 isExpanded: true,
-                dropdownColor: const Color(0xFF1A1A1E),
-                style: const TextStyle(color: Colors.white, fontSize: 16),
+                dropdownColor: card,
+                style: TextStyle(color: text, fontSize: 16),
                 items: categories.map((cat) {
                   return DropdownMenuItem(
                     value: cat.id,
@@ -262,8 +261,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
 
           const SizedBox(height: 28),
 
-          // ----- Дни недели -----
-          _sectionTitle('Дни недели'),
+          _sectionTitle('Дни недели', secondary),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(7, (i) {
@@ -285,13 +283,13 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
                   height: 42,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: selected ? accent : Colors.white.withOpacity(0.06),
+                    color: selected ? accent : card,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     _weekDays[i],
                     style: TextStyle(
-                      color: selected ? Colors.black : Colors.white70,
+                      color: selected ? Colors.black : text.withOpacity(0.7),
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
@@ -303,24 +301,23 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
 
           const SizedBox(height: 28),
 
-          // ----- Цель в день -----
-          _sectionTitle('Сколько раз в день'),
+          _sectionTitle('Сколько раз в день', secondary),
           Row(
             children: [
               _roundButton(
                 icon: Icons.remove,
+                card: card,
+                text: text,
                 onTap: () {
-                  if (_targetCount > 1) {
-                    setState(() => _targetCount--);
-                  }
+                  if (_targetCount > 1) setState(() => _targetCount--);
                 },
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
                   '$_targetCount',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: text,
                     fontSize: 28,
                     fontWeight: FontWeight.w600,
                   ),
@@ -328,10 +325,10 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
               ),
               _roundButton(
                 icon: Icons.add,
+                card: card,
+                text: text,
                 onTap: () {
-                  if (_targetCount < 50) {
-                    setState(() => _targetCount++);
-                  }
+                  if (_targetCount < 50) setState(() => _targetCount++);
                 },
               ),
             ],
@@ -339,7 +336,6 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
 
           const SizedBox(height: 48),
 
-          // ----- Кнопка сохранить -----
           SizedBox(
             width: double.infinity,
             height: 54,
@@ -367,13 +363,13 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
     );
   }
 
-  Widget _sectionTitle(String text) {
+  Widget _sectionTitle(String label, Color secondary) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Text(
-        text,
+        label,
         style: TextStyle(
-          color: Colors.white.withOpacity(0.5),
+          color: secondary,
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
@@ -381,17 +377,22 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
     );
   }
 
-  Widget _roundButton({required IconData icon, required VoidCallback onTap}) {
+  Widget _roundButton({
+    required IconData icon,
+    required Color card,
+    required Color text,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
+          color: card,
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: Colors.white70, size: 22),
+        child: Icon(icon, color: text.withOpacity(0.7), size: 22),
       ),
     );
   }

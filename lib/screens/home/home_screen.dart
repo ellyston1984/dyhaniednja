@@ -10,6 +10,8 @@ import '../../providers/theme_provider.dart';
 import '../habit/habit_edit_screen.dart';
 import '../stats/stats_screen.dart';
 import '../settings/settings_screen.dart';
+import '../../providers/cycle_provider.dart';
+import '../cycle/cycle_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -21,14 +23,19 @@ class HomeScreen extends ConsumerWidget {
     final accent = ref.watch(accentColorProvider);
     final astrologyAsync = ref.watch(dailyAstrologyProvider);
 
-    final now = DateTime.now();
-    final dateStr = DateFormat('d MMMM', 'ru').format(now);
-    final weekdayStr = DateFormat('EEEE', 'ru').format(now);
-
     final bg = ref.watch(backgroundColorProvider);
     final text = ref.watch(textColorProvider);
     final secondary = ref.watch(secondaryTextColorProvider);
     final card = ref.watch(cardColorProvider);
+
+    final now = DateTime.now();
+    final dateStr = DateFormat('d MMMM', 'ru').format(now);
+    final weekdayStr = DateFormat('EEEE', 'ru').format(now);
+
+    final cycleState = ref.watch(cycleProvider);
+    final showCycleStrip = settings.womenFeaturesEnabled &&
+        settings.cycleTrackingEnabled &&
+        settings.showCycleOnHome;
 
     return Scaffold(
       backgroundColor: bg,
@@ -45,10 +52,10 @@ class HomeScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Дыхание дня',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: text,
                             fontSize: 24,
                             fontWeight: FontWeight.w600,
                           ),
@@ -57,7 +64,7 @@ class HomeScreen extends ConsumerWidget {
                         Text(
                           '$weekdayStr, $dateStr',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.5),
+                            color: secondary,
                             fontSize: 14,
                           ),
                         ),
@@ -74,7 +81,7 @@ class HomeScreen extends ConsumerWidget {
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.settings_outlined, color: Colors.white54),
+                    icon: Icon(Icons.settings_outlined, color: secondary),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -86,18 +93,54 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
 
-            // ---------- Астрология (если включена) ----------
+            // ---------- Астрология ----------
             if (settings.astrologyEnabled)
               astrologyAsync.when(
-                data: (astro) => _AstrologyCard(astro: astro, accent: accent),
+                data: (astro) => _AstrologyCard(
+                  astro: astro,
+                  accent: accent,
+                  card: card,
+                  text: text,
+                  secondary: secondary,
+                ),
                 loading: () => const SizedBox.shrink(),
                 error: (_, __) => const SizedBox.shrink(),
+              ),
+            
+            // ---------- Астрология ----------
+            if (settings.astrologyEnabled)
+              astrologyAsync.when(
+                data: (astro) => _AstrologyCard(
+                  astro: astro,
+                  accent: accent,
+                  card: card,
+                  text: text,
+                  secondary: secondary,
+                ),
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+              ),
+
+            // ---------- Полоска цикла ----------
+            if (showCycleStrip)
+              _CycleStrip(
+                cycleState: cycleState,
+                accent: accent,
+                card: card,
+                text: text,
+                secondary: secondary,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CycleScreen()),
+                  );
+                },
               ),
 
             // ---------- Список привычек ----------
             Expanded(
               child: habits.isEmpty
-                  ? _EmptyState(accent: accent)
+                  ? _EmptyState(accent: accent, text: text, secondary: secondary)
                   : ReorderableListView.builder(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                       itemCount: habits.length,
@@ -110,9 +153,10 @@ class HomeScreen extends ConsumerWidget {
                           key: ValueKey(habit.id),
                           habit: habit,
                           accent: accent,
-                          onTap: () {
-                            // TODO: открыть детали / отметить
-                          },
+                          card: card,
+                          text: text,
+                          secondary: secondary,
+                          onTap: () {},
                           onToggle: () {
                             ref.read(habitsProvider.notifier).toggleCompletion(habit.id);
                           },
@@ -123,8 +167,6 @@ class HomeScreen extends ConsumerWidget {
           ],
         ),
       ),
-
-      // ---------- FAB ----------
       floatingActionButton: FloatingActionButton(
         backgroundColor: accent,
         foregroundColor: Colors.black,
@@ -141,13 +183,20 @@ class HomeScreen extends ConsumerWidget {
 }
 
 // ======================================================
-// Карточка астрологии
-// ======================================================
 class _AstrologyCard extends StatelessWidget {
-  final dynamic astro; // DailyAstrology
+  final dynamic astro;
   final Color accent;
+  final Color card;
+  final Color text;
+  final Color secondary;
 
-  const _AstrologyCard({required this.astro, required this.accent});
+  const _AstrologyCard({
+    required this.astro,
+    required this.accent,
+    required this.card,
+    required this.text,
+    required this.secondary,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +204,7 @@ class _AstrologyCard extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: card,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: accent.withOpacity(0.25)),
       ),
@@ -178,10 +227,7 @@ class _AstrologyCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   astro.shortAdvice ?? '',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.65),
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: secondary, fontSize: 13),
                 ),
               ],
             ),
@@ -193,11 +239,12 @@ class _AstrologyCard extends StatelessWidget {
 }
 
 // ======================================================
-// Карточка привычки
-// ======================================================
 class _HabitCard extends StatelessWidget {
   final Habit habit;
   final Color accent;
+  final Color card;
+  final Color text;
+  final Color secondary;
   final VoidCallback onTap;
   final VoidCallback onToggle;
 
@@ -205,6 +252,9 @@ class _HabitCard extends StatelessWidget {
     super.key,
     required this.habit,
     required this.accent,
+    required this.card,
+    required this.text,
+    required this.secondary,
     required this.onTap,
     required this.onToggle,
   });
@@ -217,7 +267,7 @@ class _HabitCard extends StatelessWidget {
       key: key,
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Material(
@@ -229,7 +279,6 @@ class _HabitCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             child: Row(
               children: [
-                // Цветная полоска
                 Container(
                   width: 4,
                   height: 36,
@@ -239,30 +288,21 @@ class _HabitCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 14),
-
-                // Название
                 Expanded(
                   child: Text(
                     habit.title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: text,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
-
-                // Прогресс (пока заглушка 0/target)
                 Text(
                   '0/${habit.targetCount}',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.45),
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: secondary, fontSize: 14),
                 ),
                 const SizedBox(width: 12),
-
-                // Кнопка отметки
                 GestureDetector(
                   onTap: onToggle,
                   child: Container(
@@ -285,12 +325,16 @@ class _HabitCard extends StatelessWidget {
 }
 
 // ======================================================
-// Пустое состояние
-// ======================================================
 class _EmptyState extends StatelessWidget {
   final Color accent;
+  final Color text;
+  final Color secondary;
 
-  const _EmptyState({required this.accent});
+  const _EmptyState({
+    required this.accent,
+    required this.text,
+    required this.secondary,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -305,7 +349,7 @@ class _EmptyState extends StatelessWidget {
             Text(
               'Пока нет привычек',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: text,
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
               ),
@@ -313,9 +357,128 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'Нажми + чтобы добавить первую',
+              style: TextStyle(color: secondary, fontSize: 14),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ======================================================
+class _CycleStrip extends StatelessWidget {
+  final dynamic cycleState;
+  final Color accent;
+  final Color card;
+  final Color text;
+  final Color secondary;
+  final VoidCallback onTap;
+
+  const _CycleStrip({
+    required this.cycleState,
+    required this.accent,
+    required this.card,
+    required this.text,
+    required this.secondary,
+    required this.onTap,
+  });
+
+  String get _phase => cycleState.currentPhase as String? ?? '';
+  int? get _day => cycleState.currentCycleDay as int?;
+  int? get _until => cycleState.daysUntilNextPeriod as int?;
+
+  /// Основная мысль этих дней по фазе
+  String get _mainThought {
+    final phase = _phase.toLowerCase();
+    if (phase.contains('менструац')) {
+      return 'Время замедлиться и беречь силы. Мягкий режим, больше отдыха.';
+    }
+    if (phase.contains('фолликуляр')) {
+      return 'Энергия растёт. Хорошие дни для новых привычек и планов.';
+    }
+    if (phase.contains('овуляц')) {
+      return 'Пик сил и ясности. Удобно закреплять важное и общаться.';
+    }
+    if (phase.contains('лютеин')) {
+      return 'Время завершать и успокаиваться. Меньше перегрузок.';
+    }
+    if (phase.contains('ожидан')) {
+      return 'Цикл скоро обновится. Прислушайся к телу.';
+    }
+    if (_day == null) {
+      return 'Отметь начало цикла — появится подсказка на эти дни.';
+    }
+    return 'Следи за ритмом. Маленькие шаги каждый день.';
+  }
+
+  String get _leftLabel {
+    if (_day == null) return 'Цикл';
+    return 'День $_day · $_phase';
+  }
+
+  String get _rightHint {
+    if (_until == null) return '';
+    if (_until == 0) return 'скоро месячные';
+    return 'через $_until дн.';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: card,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: const Color(0xFFE57373).withOpacity(0.35),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Верхняя строка: день / фаза + прогноз
+            Row(
+              children: [
+                Icon(
+                  Icons.water_drop_outlined,
+                  size: 16,
+                  color: const Color(0xFFE57373).withOpacity(0.9),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _leftLabel,
+                    style: TextStyle(
+                      color: accent,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (_rightHint.isNotEmpty)
+                  Text(
+                    _rightHint,
+                    style: TextStyle(color: secondary, fontSize: 12),
+                  ),
+                const SizedBox(width: 4),
+                Icon(Icons.chevron_right, size: 18, color: secondary),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Основная мысль этих дней
+            Text(
+              _mainThought,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.4),
+                color: text.withOpacity(0.85),
                 fontSize: 14,
+                height: 1.35,
               ),
             ),
           ],

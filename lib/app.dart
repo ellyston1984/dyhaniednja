@@ -30,18 +30,38 @@ class DyhanieDnyaApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Дыхание дня',
       debugShowCheckedModeBanner: false,
+      themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       theme: ThemeData(
-        brightness: settings.isDarkMode ? Brightness.dark : Brightness.light,
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: const Color(0xFFF5F5F7),
+        primaryColor: accent,
+        colorScheme: ColorScheme.light(
+          primary: accent,
+          secondary: accent,
+          surface: const Color(0xFFF5F5F7),
+          onSurface: const Color(0xFF1A1A1E),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          foregroundColor: Color(0xFF1A1A1E),
+        ),
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF0A0A0B),
         primaryColor: accent,
         colorScheme: ColorScheme.dark(
           primary: accent,
           secondary: accent,
           surface: const Color(0xFF0A0A0B),
+          onSurface: Colors.white,
         ),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.transparent,
           elevation: 0,
+          foregroundColor: Colors.white,
         ),
         useMaterial3: true,
       ),

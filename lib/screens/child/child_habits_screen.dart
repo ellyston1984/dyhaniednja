@@ -18,31 +18,30 @@ class ChildHabitsScreen extends ConsumerWidget {
     final accent = ref.watch(accentColorProvider);
     final childState = ref.watch(childHabitsProvider);
 
-    // Если функция выключена
-    if (!settings.womenFeaturesEnabled || !settings.childHabitsEnabled) {
-     
     final bg = ref.watch(backgroundColorProvider);
     final text = ref.watch(textColorProvider);
     final secondary = ref.watch(secondaryTextColorProvider);
     final card = ref.watch(cardColorProvider);
 
-    return Scaffold(
+    if (!settings.womenFeaturesEnabled || !settings.childHabitsEnabled) {
+      return Scaffold(
+        backgroundColor: bg,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white70, size: 20),
+            icon: Icon(Icons.arrow_back_ios_new, color: secondary, size: 20),
             onPressed: () => Navigator.pop(context),
           ),
-          title: const Text(
+          title: Text(
             'Привычки ребёнка',
-            style: TextStyle(color: Colors.white, fontSize: 18),
+            style: TextStyle(color: text, fontSize: 18),
           ),
         ),
-        body: const Center(
+        body: Center(
           child: Text(
             'Функция выключена в настройках',
-            style: TextStyle(color: Colors.white54, fontSize: 16),
+            style: TextStyle(color: secondary, fontSize: 16),
           ),
         ),
       );
@@ -52,34 +51,36 @@ class ChildHabitsScreen extends ConsumerWidget {
     final selectedProfile = childState.selectedProfile;
     final habits = childState.habitsForSelected;
 
-    final bg = ref.watch(backgroundColorProvider);
-    final text = ref.watch(textColorProvider);
-    final secondary = ref.watch(secondaryTextColorProvider);
-    final card = ref.watch(cardColorProvider);
-
     return Scaffold(
       backgroundColor: bg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white70, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new, color: secondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Привычки ребёнка',
-          style: TextStyle(color: Colors.white, fontSize: 18),
+          style: TextStyle(color: text, fontSize: 18),
         ),
         actions: [
           IconButton(
             icon: Icon(Icons.person_add_alt_1, color: accent),
-            onPressed: () => _showAddChildDialog(context, ref),
+            onPressed: () => _showAddChildDialog(
+              context,
+              ref,
+              bg,
+              text,
+              secondary,
+              card,
+              accent,
+            ),
           ),
         ],
       ),
       body: Column(
         children: [
-          // ---------- Список профилей детей ----------
           if (profiles.isNotEmpty)
             SizedBox(
               height: 56,
@@ -94,14 +95,19 @@ class ChildHabitsScreen extends ConsumerWidget {
 
                   return GestureDetector(
                     onTap: () {
-                      ref.read(childHabitsProvider.notifier).selectProfile(profile.id);
+                      ref
+                          .read(childHabitsProvider.notifier)
+                          .selectProfile(profile.id);
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? accent.withOpacity(0.25)
-                            : Colors.white.withOpacity(0.06),
+                            : card,
                         borderRadius: BorderRadius.circular(20),
                         border: isSelected
                             ? Border.all(color: accent, width: 1.5)
@@ -112,10 +118,13 @@ class ChildHabitsScreen extends ConsumerWidget {
                           CircleAvatar(
                             radius: 14,
                             backgroundColor: Color(
-                              int.tryParse(profile.avatarColor ?? '0xFF4A9B9B') ?? 0xFF4A9B9B,
+                              int.tryParse(profile.avatarColor ?? '0xFF4A9B9B') ??
+                                  0xFF4A9B9B,
                             ),
                             child: Text(
-                              profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
+                              profile.name.isNotEmpty
+                                  ? profile.name[0].toUpperCase()
+                                  : '?',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 13,
@@ -127,9 +136,10 @@ class ChildHabitsScreen extends ConsumerWidget {
                           Text(
                             profile.name,
                             style: TextStyle(
-                              color: isSelected ? accent : Colors.white70,
+                              color: isSelected ? accent : text.withOpacity(0.8),
                               fontSize: 14,
-                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                              fontWeight:
+                                  isSelected ? FontWeight.w600 : FontWeight.normal,
                             ),
                           ),
                         ],
@@ -142,25 +152,28 @@ class ChildHabitsScreen extends ConsumerWidget {
 
           const SizedBox(height: 12),
 
-          // ---------- Список привычек ----------
           Expanded(
             child: profiles.isEmpty
-                ? _EmptyProfiles(accent: accent, onAdd: () => _showAddChildDialog(context, ref))
+                ? _EmptyProfiles(
+                    accent: accent,
+                    text: text,
+                    secondary: secondary,
+                    onAdd: () => _showAddChildDialog(
+                      context,
+                      ref,
+                      bg,
+                      text,
+                      secondary,
+                      card,
+                      accent,
+                    ),
+                  )
                 : habits.isEmpty
                     ? _EmptyHabits(
                         accent: accent,
+                        text: text,
+                        secondary: secondary,
                         childName: selectedProfile?.name ?? '',
-                        onAdd: () {
-                          if (selectedProfile == null) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => HabitEditScreen(
-                                // Можно позже передать childProfileId
-                              ),
-                            ),
-                          );
-                        },
                       )
                     : ListView.builder(
                         padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
@@ -169,7 +182,8 @@ class ChildHabitsScreen extends ConsumerWidget {
                           final habit = habits[index];
                           return _ChildHabitCard(
                             habit: habit,
-                            accent: accent,
+                            card: card,
+                            text: text,
                             onToggle: () {
                               ref
                                   .read(childHabitsProvider.notifier)
@@ -187,7 +201,6 @@ class ChildHabitsScreen extends ConsumerWidget {
               backgroundColor: accent,
               foregroundColor: Colors.black,
               onPressed: () {
-                if (selectedProfile == null) return;
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -200,27 +213,32 @@ class ChildHabitsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _showAddChildDialog(BuildContext context, WidgetRef ref) async {
+  Future<void> _showAddChildDialog(
+    BuildContext context,
+    WidgetRef ref,
+    Color bg,
+    Color text,
+    Color secondary,
+    Color card,
+    Color accent,
+  ) async {
     final nameController = TextEditingController();
 
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF1A1A1E),
-          title: const Text(
-            'Добавить ребёнка',
-            style: TextStyle(color: Colors.white),
-          ),
+          backgroundColor: bg,
+          title: Text('Добавить ребёнка', style: TextStyle(color: text)),
           content: TextField(
             controller: nameController,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: text),
             autofocus: true,
             decoration: InputDecoration(
               hintText: 'Имя',
-              hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+              hintStyle: TextStyle(color: secondary),
               filled: true,
-              fillColor: Colors.white.withOpacity(0.06),
+              fillColor: card,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -230,14 +248,14 @@ class ChildHabitsScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Отмена'),
+              child: Text('Отмена', style: TextStyle(color: secondary)),
             ),
             TextButton(
               onPressed: () {
                 final name = nameController.text.trim();
                 if (name.isNotEmpty) Navigator.pop(ctx, name);
               },
-              child: const Text('Добавить'),
+              child: Text('Добавить', style: TextStyle(color: accent)),
             ),
           ],
         );
@@ -256,18 +274,16 @@ class ChildHabitsScreen extends ConsumerWidget {
   }
 }
 
-// ======================================================
-// Виджеты
-// ======================================================
-
 class _ChildHabitCard extends StatelessWidget {
   final Habit habit;
-  final Color accent;
+  final Color card;
+  final Color text;
   final VoidCallback onToggle;
 
   const _ChildHabitCard({
     required this.habit,
-    required this.accent,
+    required this.card,
+    required this.text,
     required this.onToggle,
   });
 
@@ -279,7 +295,7 @@ class _ChildHabitCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: card,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -296,8 +312,8 @@ class _ChildHabitCard extends StatelessWidget {
           Expanded(
             child: Text(
               habit.title,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: text,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -323,9 +339,16 @@ class _ChildHabitCard extends StatelessWidget {
 
 class _EmptyProfiles extends StatelessWidget {
   final Color accent;
+  final Color text;
+  final Color secondary;
   final VoidCallback onAdd;
 
-  const _EmptyProfiles({required this.accent, required this.onAdd});
+  const _EmptyProfiles({
+    required this.accent,
+    required this.text,
+    required this.secondary,
+    required this.onAdd,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -337,14 +360,14 @@ class _EmptyProfiles extends StatelessWidget {
           children: [
             Icon(Icons.child_care, size: 64, color: accent.withOpacity(0.5)),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Добавьте ребёнка',
-              style: TextStyle(color: Colors.white, fontSize: 18),
+              style: TextStyle(color: text, fontSize: 18),
             ),
             const SizedBox(height: 8),
             Text(
               'Чтобы отслеживать его привычки',
-              style: TextStyle(color: Colors.white.withOpacity(0.4)),
+              style: TextStyle(color: secondary),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
@@ -367,13 +390,15 @@ class _EmptyProfiles extends StatelessWidget {
 
 class _EmptyHabits extends StatelessWidget {
   final Color accent;
+  final Color text;
+  final Color secondary;
   final String childName;
-  final VoidCallback onAdd;
 
   const _EmptyHabits({
     required this.accent,
+    required this.text,
+    required this.secondary,
     required this.childName,
-    required this.onAdd,
   });
 
   @override
@@ -388,13 +413,13 @@ class _EmptyHabits extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Нет привычек у $childName',
-              style: const TextStyle(color: Colors.white, fontSize: 17),
+              style: TextStyle(color: text, fontSize: 17),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               'Нажмите + чтобы добавить',
-              style: TextStyle(color: Colors.white.withOpacity(0.4)),
+              style: TextStyle(color: secondary),
             ),
           ],
         ),

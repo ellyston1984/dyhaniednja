@@ -4,7 +4,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers/settings_provider.dart';
 import '../../providers/theme_provider.dart';
-import '../../models/app_settings.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -26,40 +25,44 @@ class SettingsScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white70, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new, color: secondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Настройки',
-          style: TextStyle(color: Colors.white, fontSize: 18),
+          style: TextStyle(color: text, fontSize: 18),
         ),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
         children: [
-          // ========== ТЕМА И ЦВЕТА ==========
-          _sectionTitle('Тема и цвета'),
+          _sectionTitle('Тема и цвета', secondary),
           _card(
+            card,
             children: [
               _switchTile(
                 title: 'Тёмная тема',
                 value: settings.isDarkMode,
                 accent: accent,
+                text: text,
+                secondary: secondary,
                 onChanged: (v) {
                   notifier.updateSettings(settings.copyWith(isDarkMode: v));
                 },
               ),
-              _divider(),
+              _divider(secondary),
               _switchTile(
                 title: 'Монохромный режим',
                 subtitle: 'Убрать цветные акценты',
                 value: settings.monochromeMode,
                 accent: accent,
+                text: text,
+                secondary: secondary,
                 onChanged: (v) {
                   notifier.updateSettings(settings.copyWith(monochromeMode: v));
                 },
               ),
-              _divider(),
+              _divider(secondary),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                 child: Column(
@@ -67,10 +70,7 @@ class SettingsScreen extends ConsumerWidget {
                   children: [
                     Text(
                       'Акцентный цвет',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.85),
-                        fontSize: 15,
-                      ),
+                      style: TextStyle(color: text.withOpacity(0.85), fontSize: 15),
                     ),
                     const SizedBox(height: 12),
                     Wrap(
@@ -97,7 +97,7 @@ class SettingsScreen extends ConsumerWidget {
                               color: Color(c),
                               shape: BoxShape.circle,
                               border: selected
-                                  ? Border.all(color: Colors.white, width: 2.5)
+                                  ? Border.all(color: text, width: 2.5)
                                   : null,
                             ),
                           ),
@@ -112,9 +112,9 @@ class SettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: 20),
 
-          // ========== СЕРИИ ==========
-          _sectionTitle('Серии'),
+          _sectionTitle('Серии', secondary),
           _card(
+            card,
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
@@ -123,16 +123,14 @@ class SettingsScreen extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         'Режим серии',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.85),
-                          fontSize: 15,
-                        ),
+                        style: TextStyle(color: text.withOpacity(0.85), fontSize: 15),
                       ),
                     ),
                     _modeChip(
                       label: 'Строгий',
                       selected: settings.streakMode == 'strict',
                       accent: accent,
+                      text: text,
                       onTap: () {
                         notifier.updateSettings(
                           settings.copyWith(streakMode: 'strict'),
@@ -144,6 +142,7 @@ class SettingsScreen extends ConsumerWidget {
                       label: 'Мягкий',
                       selected: settings.streakMode == 'soft',
                       accent: accent,
+                      text: text,
                       onTap: () {
                         notifier.updateSettings(
                           settings.copyWith(streakMode: 'soft'),
@@ -158,15 +157,17 @@ class SettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: 20),
 
-          // ========== АСТРОЛОГИЯ ==========
-          _sectionTitle('Астрология и эзотерика'),
+          _sectionTitle('Астрология и эзотерика', secondary),
           _card(
+            card,
             children: [
               _switchTile(
                 title: 'Астрология',
                 subtitle: 'Фазы Луны и рекомендации',
                 value: settings.astrologyEnabled,
                 accent: accent,
+                text: text,
+                secondary: secondary,
                 onChanged: (v) {
                   notifier.updateSettings(
                     settings.copyWith(astrologyEnabled: v),
@@ -174,33 +175,39 @@ class SettingsScreen extends ConsumerWidget {
                 },
               ),
               if (settings.astrologyEnabled) ...[
-                _divider(),
+                _divider(secondary),
                 _switchTile(
                   title: 'Персональная энергия',
                   value: settings.showPersonalEnergy,
                   accent: accent,
+                  text: text,
+                  secondary: secondary,
                   onChanged: (v) {
                     notifier.updateSettings(
                       settings.copyWith(showPersonalEnergy: v),
                     );
                   },
                 ),
-                _divider(),
+                _divider(secondary),
                 _switchTile(
                   title: 'Управитель дня',
                   value: settings.showDayRuler,
                   accent: accent,
+                  text: text,
+                  secondary: secondary,
                   onChanged: (v) {
                     notifier.updateSettings(
                       settings.copyWith(showDayRuler: v),
                     );
                   },
                 ),
-                _divider(),
+                _divider(secondary),
                 _switchTile(
                   title: 'Аффирмации',
                   value: settings.showAffirmation,
                   accent: accent,
+                  text: text,
+                  secondary: secondary,
                   onChanged: (v) {
                     notifier.updateSettings(
                       settings.copyWith(showAffirmation: v),
@@ -213,15 +220,17 @@ class SettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: 20),
 
-          // ========== ЖЕНСКИЕ ФУНКЦИИ ==========
-          _sectionTitle('Женские функции'),
+          _sectionTitle('Женские функции', secondary),
           _card(
+            card,
             children: [
               _switchTile(
                 title: 'Женские функции',
                 subtitle: 'Цикл, ребёнок и др.',
                 value: settings.womenFeaturesEnabled,
                 accent: accent,
+                text: text,
+                secondary: secondary,
                 onChanged: (v) {
                   notifier.updateSettings(
                     settings.copyWith(womenFeaturesEnabled: v),
@@ -229,45 +238,51 @@ class SettingsScreen extends ConsumerWidget {
                 },
               ),
               if (settings.womenFeaturesEnabled) ...[
-                _divider(),
+                _divider(secondary),
                 _switchTile(
                   title: 'Менструальный цикл',
                   value: settings.cycleTrackingEnabled,
                   accent: accent,
+                  text: text,
+                  secondary: secondary,
                   onChanged: (v) {
                     notifier.updateSettings(
                       settings.copyWith(cycleTrackingEnabled: v),
                     );
                   },
                 ),
-                _divider(),
+                _divider(secondary),
                 _switchTile(
                   title: 'Привычки ребёнка',
                   value: settings.childHabitsEnabled,
                   accent: accent,
+                  text: text,
+                  secondary: secondary,
                   onChanged: (v) {
                     notifier.updateSettings(
                       settings.copyWith(childHabitsEnabled: v),
                     );
                   },
                 ),
-                _divider(),
-                _stubTile('Беременность', 'Скоро'),
+                _divider(secondary),
+                _stubTile('Беременность', 'Скоро', text, secondary),
               ],
             ],
           ),
 
           const SizedBox(height: 20),
 
-          // ========== УМНЫЕ ПОДСКАЗКИ ==========
-          _sectionTitle('Умные подсказки'),
+          _sectionTitle('Умные подсказки', secondary),
           _card(
+            card,
             children: [
               _switchTile(
                 title: 'Smart Insights',
                 subtitle: 'Анализ на основе вашей истории',
                 value: settings.smartInsightsEnabled,
                 accent: accent,
+                text: text,
+                secondary: secondary,
                 onChanged: (v) {
                   notifier.updateSettings(
                     settings.copyWith(smartInsightsEnabled: v),
@@ -279,39 +294,41 @@ class SettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: 20),
 
-          // ========== СКОРО ==========
-          _sectionTitle('Скоро'),
+          _sectionTitle('Скоро', secondary),
           _card(
+            card,
             children: [
-              _stubTile('Виджеты', 'Скоро'),
-              _divider(),
-              _stubTile('Уведомления', 'Скоро'),
-              _divider(),
-              _stubTile('Голосовой ввод', 'Скоро'),
-              _divider(),
-              _stubTile('Health интеграция', 'Скоро'),
-              _divider(),
-              _stubTile('Привычки-цепочки', 'Скоро'),
+              _stubTile('Виджеты', 'Скоро', text, secondary),
+              _divider(secondary),
+              _stubTile('Уведомления', 'Скоро', text, secondary),
+              _divider(secondary),
+              _stubTile('Голосовой ввод', 'Скоро', text, secondary),
+              _divider(secondary),
+              _stubTile('Health интеграция', 'Скоро', text, secondary),
+              _divider(secondary),
+              _stubTile('Привычки-цепочки', 'Скоро', text, secondary),
             ],
           ),
 
           const SizedBox(height: 20),
 
-          // ========== ССЫЛКИ ==========
-          _sectionTitle('Ссылки'),
+          _sectionTitle('Ссылки', secondary),
           _card(
+            card,
             children: [
               _linkTile(
                 title: 'Нейросети',
                 subtitle: 'Заглушка',
-                onTap: () {
-                  // TODO: открыть заглушку нейросетей
-                },
+                text: text,
+                secondary: secondary,
+                onTap: () {},
               ),
-              _divider(),
+              _divider(secondary),
               _linkTile(
                 title: 'Мессенджер Дыхание',
                 subtitle: 'dyhanie.su',
+                text: text,
+                secondary: secondary,
                 onTap: () async {
                   final uri = Uri.parse('https://dyhanie.su');
                   if (await canLaunchUrl(uri)) {
@@ -326,10 +343,7 @@ class SettingsScreen extends ConsumerWidget {
           Center(
             child: Text(
               'Дыхание дня  v1.0.0-dev',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.25),
-                fontSize: 12,
-              ),
+              style: TextStyle(color: secondary.withOpacity(0.6), fontSize: 12),
             ),
           ),
         ],
@@ -337,15 +351,13 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  // ---------- вспомогательные виджеты ----------
-
-  Widget _sectionTitle(String text) {
+  Widget _sectionTitle(String text, Color secondary) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         text,
         style: TextStyle(
-          color: Colors.white.withOpacity(0.45),
+          color: secondary,
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
@@ -353,20 +365,28 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _card({required List<Widget> children}) {
+  Widget _card(Color cardColor, {required List<Widget> children}) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: cardColor,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          if (cardColor == Colors.white)
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+        ],
       ),
       child: Column(children: children),
     );
   }
 
-  Widget _divider() {
+  Widget _divider(Color secondary) {
     return Divider(
       height: 1,
-      color: Colors.white.withOpacity(0.06),
+      color: secondary.withOpacity(0.15),
       indent: 16,
       endIndent: 16,
     );
@@ -377,24 +397,14 @@ class SettingsScreen extends ConsumerWidget {
     String? subtitle,
     required bool value,
     required Color accent,
+    required Color text,
+    required Color secondary,
     required ValueChanged<bool> onChanged,
   }) {
     return SwitchListTile(
-      title: Text(
-        title,
-        style: TextStyle(
-          color: Colors.white.withOpacity(0.9),
-          fontSize: 15,
-        ),
-      ),
+      title: Text(title, style: TextStyle(color: text, fontSize: 15)),
       subtitle: subtitle != null
-          ? Text(
-              subtitle,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.4),
-                fontSize: 12,
-              ),
-            )
+          ? Text(subtitle, style: TextStyle(color: secondary, fontSize: 12))
           : null,
       value: value,
       activeColor: accent,
@@ -406,6 +416,7 @@ class SettingsScreen extends ConsumerWidget {
     required String label,
     required bool selected,
     required Color accent,
+    required Color text,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
@@ -413,13 +424,13 @@ class SettingsScreen extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? accent : Colors.white.withOpacity(0.08),
+          color: selected ? accent : text.withOpacity(0.08),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? Colors.black : Colors.white70,
+            color: selected ? Colors.black : text.withOpacity(0.7),
             fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
@@ -428,28 +439,16 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _stubTile(String title, String badge) {
+  Widget _stubTile(String title, String badge, Color text, Color secondary) {
     return ListTile(
-      title: Text(
-        title,
-        style: TextStyle(
-          color: Colors.white.withOpacity(0.45),
-          fontSize: 15,
-        ),
-      ),
+      title: Text(title, style: TextStyle(color: secondary, fontSize: 15)),
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
+          color: text.withOpacity(0.08),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Text(
-          badge,
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.4),
-            fontSize: 11,
-          ),
-        ),
+        child: Text(badge, style: TextStyle(color: secondary, fontSize: 11)),
       ),
     );
   }
@@ -457,29 +456,16 @@ class SettingsScreen extends ConsumerWidget {
   Widget _linkTile({
     required String title,
     String? subtitle,
+    required Color text,
+    required Color secondary,
     required VoidCallback onTap,
   }) {
     return ListTile(
-      title: Text(
-        title,
-        style: TextStyle(
-          color: Colors.white.withOpacity(0.9),
-          fontSize: 15,
-        ),
-      ),
+      title: Text(title, style: TextStyle(color: text, fontSize: 15)),
       subtitle: subtitle != null
-          ? Text(
-              subtitle,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.4),
-                fontSize: 12,
-              ),
-            )
+          ? Text(subtitle, style: TextStyle(color: secondary, fontSize: 12))
           : null,
-      trailing: Icon(
-        Icons.chevron_right,
-        color: Colors.white.withOpacity(0.3),
-      ),
+      trailing: Icon(Icons.chevron_right, color: secondary),
       onTap: onTap,
     );
   }
