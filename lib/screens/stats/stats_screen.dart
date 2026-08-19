@@ -21,9 +21,14 @@ class StatsScreen extends ConsumerWidget {
     // Пока простая заглушка серии (позже посчитаем реально)
     final currentStreak = 0;
     final bestStreak = 0;
+   
+    final bg = ref.watch(backgroundColorProvider);
+    final text = ref.watch(textColorProvider);
+    final secondary = ref.watch(secondaryTextColorProvider);
+    final card = ref.watch(cardColorProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0B),
+      backgroundColor: bg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -183,15 +188,15 @@ class StatsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 // Простая сетка дней (заглушка)
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SpeculativeGridDelegate(),
-                  itemCount: 28,
-                  itemBuilder: (context, i) {
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: List.generate(28, (i) {
                     final day = i + 1;
                     final isToday = day == DateTime.now().day;
                     return Container(
+                      width: 36,
+                      height: 36,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: isToday
@@ -207,11 +212,12 @@ class StatsScreen extends ConsumerWidget {
                         style: TextStyle(
                           color: isToday ? accent : Colors.white54,
                           fontSize: 13,
-                          fontWeight: isToday ? FontWeight.w600 : FontWeight.normal,
+                          fontWeight:
+                              isToday ? FontWeight.w600 : FontWeight.normal,
                         ),
                       ),
                     );
-                  },
+                  }),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -316,24 +322,3 @@ class _HabitStatRow extends StatelessWidget {
   }
 }
 
-/// Простая сетка 7 колонок
-class SpeculativeGridDelegate extends SliverGridDelegate {
-  const SpeculativeGridDelegate();
-
-  @override
-  SliverGridLayout getLayout(SliverConstraints constraints) {
-    const crossAxisCount = 7;
-    final itemWidth = constraints.crossAxisExtent / crossAxisCount;
-    return SliverGridRegularTileLayout(
-      crossAxisCount: crossAxisCount,
-      mainAxisStride: itemWidth,
-      crossAxisStride: itemWidth,
-      childMainAxisExtent: itemWidth - 4,
-      childCrossAxisExtent: itemWidth - 4,
-      reverseCrossAxis: false,
-    );
-  }
-
-  @override
-  bool shouldRelayout(covariant SpeculativeGridDelegate oldDelegate) => false;
-}

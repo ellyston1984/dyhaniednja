@@ -25,8 +25,13 @@ class HomeScreen extends ConsumerWidget {
     final dateStr = DateFormat('d MMMM', 'ru').format(now);
     final weekdayStr = DateFormat('EEEE', 'ru').format(now);
 
+    final bg = ref.watch(backgroundColorProvider);
+    final text = ref.watch(textColorProvider);
+    final secondary = ref.watch(secondaryTextColorProvider);
+    final card = ref.watch(cardColorProvider);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0B),
+      backgroundColor: bg,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

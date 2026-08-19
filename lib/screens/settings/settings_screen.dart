@@ -15,8 +15,13 @@ class SettingsScreen extends ConsumerWidget {
     final accent = ref.watch(accentColorProvider);
     final notifier = ref.read(settingsProvider.notifier);
 
+    final bg = ref.watch(backgroundColorProvider);
+    final text = ref.watch(textColorProvider);
+    final secondary = ref.watch(secondaryTextColorProvider);
+    final card = ref.watch(cardColorProvider);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0B),
+      backgroundColor: bg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

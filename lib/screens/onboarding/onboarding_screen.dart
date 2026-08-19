@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../models/app_settings.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -54,8 +55,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Widget build(BuildContext context) {
     final accent = ref.watch(accentColorProvider);
 
+    final bg = ref.watch(backgroundColorProvider);
+    final text = ref.watch(textColorProvider);
+    final secondary = ref.watch(secondaryTextColorProvider);
+    final card = ref.watch(cardColorProvider);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0B),
+      backgroundColor: bg,
       body: SafeArea(
         child: Column(
           children: [

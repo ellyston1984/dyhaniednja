@@ -154,8 +154,13 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
       _selectedCategoryId = categories.first.id;
     }
 
+    final bg = ref.watch(backgroundColorProvider);
+    final text = ref.watch(textColorProvider);
+    final secondary = ref.watch(secondaryTextColorProvider);
+    final card = ref.watch(cardColorProvider);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0B),
+      backgroundColor: bg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -304,4 +309,90 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
             children: [
               _roundButton(
                 icon: Icons.remove,
-                onTap
+                onTap: () {
+                  if (_targetCount > 1) {
+                    setState(() => _targetCount--);
+                  }
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  '$_targetCount',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              _roundButton(
+                icon: Icons.add,
+                onTap: () {
+                  if (_targetCount < 50) {
+                    setState(() => _targetCount++);
+                  }
+                },
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 48),
+
+          // ----- Кнопка сохранить -----
+          SizedBox(
+            width: double.infinity,
+            height: 54,
+            child: ElevatedButton(
+              onPressed: _save,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: accent,
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                isEdit ? 'Сохранить' : 'Создать привычку',
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.5),
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  Widget _roundButton({required IconData icon, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.08),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: Colors.white70, size: 22),
+      ),
+    );
+  }
+}
