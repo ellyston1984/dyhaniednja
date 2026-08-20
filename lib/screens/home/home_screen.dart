@@ -12,6 +12,7 @@ import '../stats/stats_screen.dart';
 import '../settings/settings_screen.dart';
 import '../../providers/cycle_provider.dart';
 import '../cycle/cycle_screen.dart';
+import '../astrology/astrology_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -107,20 +108,6 @@ class HomeScreen extends ConsumerWidget {
                 error: (_, __) => const SizedBox.shrink(),
               ),
             
-            // ---------- Астрология ----------
-            if (settings.astrologyEnabled)
-              astrologyAsync.when(
-                data: (astro) => _AstrologyCard(
-                  astro: astro,
-                  accent: accent,
-                  card: card,
-                  text: text,
-                  secondary: secondary,
-                ),
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
-              ),
-
             // ---------- Полоска цикла ----------
             if (showCycleStrip)
               _CycleStrip(
@@ -200,39 +187,52 @@ class _AstrologyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: accent.withOpacity(0.25)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.nightlight_round, color: accent, size: 28),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  astro.moonPhase ?? 'Луна',
-                  style: TextStyle(
-                    color: accent,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  astro.shortAdvice ?? '',
-                  style: TextStyle(color: secondary, fontSize: 13),
-                ),
-              ],
-            ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AstrologyScreen(),
           ),
-        ],
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: accent.withOpacity(0.25)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.nightlight_round, color: accent, size: 28),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    astro.moonPhase ?? 'Луна',
+                    style: TextStyle(
+                      color: accent,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    astro.shortAdvice ?? '',
+                    style: TextStyle(color: secondary, fontSize: 13),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: secondary, size: 20),
+          ],
+        ),
       ),
     );
   }
