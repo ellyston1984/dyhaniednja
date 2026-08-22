@@ -87,7 +87,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
         categoryId: _selectedCategoryId,
         daysOfWeek: _selectedDays,
         targetCount: _targetCount,
-        order: ref.read(habitsProvider).length,
+        order: ref.read(habitsProvider).habits.length,
       );
       await habitsNotifier.addHabit(newHabit);
     } else {

@@ -1,7 +1,7 @@
 class HabitLog {
   final String id;
   final String habitId;
-  final DateTime date;
+  final DateTime date; // только день, без времени
   final int completedCount;
   final String? note;
   final int? moodScore;
@@ -15,20 +15,24 @@ class HabitLog {
     this.moodScore,
   });
 
+  DateTime get dayOnly =>
+      DateTime(date.year, date.month, date.day);
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'habitId': habitId,
-        'date': date.toIso8601String(),
+        'date': dayOnly.toIso8601String(),
         'completedCount': completedCount,
         'note': note,
         'moodScore': moodScore,
       };
 
   factory HabitLog.fromJson(Map<String, dynamic> json) {
+    final d = DateTime.tryParse(json['date']?.toString() ?? '') ?? DateTime.now();
     return HabitLog(
       id: json['id'] as String,
       habitId: json['habitId'] as String,
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime(d.year, d.month, d.day),
       completedCount: json['completedCount'] as int? ?? 1,
       note: json['note'] as String?,
       moodScore: json['moodScore'] as int?,

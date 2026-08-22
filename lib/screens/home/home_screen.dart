@@ -19,7 +19,8 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final habits = ref.watch(habitsProvider);
+    final habitsState = ref.watch(habitsProvider);
+    final habits = habitsState.habits;
     final settings = ref.watch(settingsProvider);
     final accent = ref.watch(accentColorProvider);
     final astrologyAsync = ref.watch(dailyAstrologyProvider);
@@ -134,11 +135,18 @@ class HomeScreen extends ConsumerWidget {
                       onReorder: (oldIndex, newIndex) {
                         ref.read(habitsProvider.notifier).reorder(oldIndex, newIndex);
                       },
-                      itemBuilder: (context, index) {
+                     itemBuilder: (context, index) {
                         final habit = habits[index];
+                        final done = habitsState.todayCount(habit.id);
+                        final target = habit.targetCount;
+                        final completed = done >= target;
+
                         return _HabitCard(
                           key: ValueKey(habit.id),
                           habit: habit,
+                          done: done,
+                          target: target,
+                          completed: completed,
                           accent: accent,
                           card: card,
                           text: text,
@@ -241,6 +249,9 @@ class _AstrologyCard extends StatelessWidget {
 // ======================================================
 class _HabitCard extends StatelessWidget {
   final Habit habit;
+  final int done;
+  final int target;
+  final bool completed;
   final Color accent;
   final Color card;
   final Color text;
@@ -251,6 +262,9 @@ class _HabitCard extends StatelessWidget {
   const _HabitCard({
     super.key,
     required this.habit,
+    required this.done,
+    required this.target,
+    required this.completed,
     required this.accent,
     required this.card,
     required this.text,
@@ -299,8 +313,11 @@ class _HabitCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '0/${habit.targetCount}',
-                  style: TextStyle(color: secondary, fontSize: 14),
+                  '$done/$target',
+                  style: TextStyle(
+                    color: completed ? accent : secondary,
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 GestureDetector(
@@ -308,11 +325,27 @@ class _HabitCard extends StatelessWidget {
                   child: Container(
                     width: 32,
                     height: 32,
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: color.withOpacity(0.6), width: 2),
+                      color: completed ? color : Colors.transparent,
+                      border: Border.all(
+                        color: color.withOpacity(0.7),
+                        width: 2,
+                      ),
                     ),
-                    child: Icon(Icons.check, size: 18, color: color.withOpacity(0.0)),
+                    child: completed
+                        ? const Icon(Icons.check, size: 18, color: Colors.white)
+                        : (done > 0
+                            ? Text(
+                                '$done',
+                                style: TextStyle(
+                                  color: color,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              )
+                            : null),
                   ),
                 ),
               ],

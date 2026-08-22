@@ -13,7 +13,8 @@ class StatsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final habits = ref.watch(habitsProvider);
+    final habitsState = ref.watch(habitsProvider);
+    final habits = habitsState.habits;
     final settings = ref.watch(settingsProvider);
     final accent = ref.watch(accentColorProvider);
     final astrologyAsync = ref.watch(dailyAstrologyProvider);
